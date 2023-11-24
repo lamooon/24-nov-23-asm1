@@ -7,7 +7,7 @@ RUN ./gradlew bootJar
 RUN mkdir -p ${DEPENDENCY_BUILD} && (cd ${DEPENDENCY_BUILD}; jar -xf ../*.jar)
 
 #stage 2
-FROM --platform=linux/arm64/v8 openjdk:11-jre-slim
+FROM --platform=linux/arm64/v8 openjdk:17-jdk-slim
 
 VOLUME /tmp
 
