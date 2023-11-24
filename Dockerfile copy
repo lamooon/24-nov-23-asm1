@@ -1,0 +1,20 @@
+FROM openjdk:17-jdk-slim as build
+WORKDIR /app
+COPY . .
+ARG DEPENDENCY_BUILD=build/libs/dependency
+
+RUN ./gradlew bootJar
+RUN mkdir -p ${DEPENDENCY_BUILD} && (cd ${DEPENDENCY_BUILD}; jar -xf ../*.jar)
+
+#stage 2
+FROM openjdk:11-jre-slim
+
+VOLUME /tmp
+
+ARG DEPENDENCY_RUN=/app/build/libs/dependency
+
+COPY --from=build ${DEPENDENCY_RUN}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY_RUN}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY_RUN}/BOOT-INF/classes /app
+
+ENTRYPOINT [ "java", "-cp", "app:app/lib/*", "usinessApp/BusinessAppApplication.java" ]
